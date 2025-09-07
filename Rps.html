@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock, Paper, Scissors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .choice-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .choice-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .choice-icon {
+            font-size: 4rem; /* Increased icon size */
+            line-height: 1;
+        }
+        #result-message {
+            min-height: 3rem; /* Reserve space for the message to prevent layout shifts */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-2xl mx-auto p-6 md:p-8 bg-gray-800 rounded-2xl shadow-2xl text-center">
+
+        <!-- Title -->
+        <h1 class="text-4xl md:text-5xl font-bold text-cyan-400 mb-2">Rock, Paper, Scissors</h1>
+        <p class="text-gray-400 mb-8">Choose your weapon!</p>
+
+        <!-- Scoreboard -->
+        <div class="flex justify-center items-center space-x-8 mb-8">
+            <div class="text-center">
+                <p class="text-lg font-semibold text-gray-300">Player</p>
+                <p id="player-score" class="text-5xl font-bold text-white">0</p>
+            </div>
+            <div class="text-5xl font-bold text-gray-500">-</div>
+            <div class="text-center">
+                <p class="text-lg font-semibold text-gray-300">Computer</p>
+                <p id="computer-score" class="text-5xl font-bold text-white">0</p>
+            </div>
+        </div>
+
+        <!-- Choices Display -->
+        <div class="flex justify-around items-center mb-8 bg-gray-900/50 p-6 rounded-xl min-h-[150px]">
+            <div>
+                <p class="text-lg mb-2">You Chose</p>
+                <div id="player-choice" class="choice-icon">❔</div>
+            </div>
+            <div>
+                <p class="text-lg mb-2">Computer Chose</p>
+                <div id="computer-choice" class="choice-icon">❔</div>
+            </div>
+        </div>
+        
+        <!-- Result Message -->
+        <div id="result-message" class="text-2xl font-semibold mb-8 text-yellow-400">
+            Make your move!
+        </div>
+
+        <!-- Player Action Buttons -->
+        <div class="flex justify-center items-center space-x-4">
+            <button data-choice="Rock" class="choice-btn bg-gray-700 hover:bg-red-500 text-white font-bold py-4 px-6 rounded-lg flex-1">
+                <span class="text-4xl">✊</span>
+                <span class="block mt-1">Rock</span>
+            </button>
+            <button data-choice="Paper" class="choice-btn bg-gray-700 hover:bg-green-500 text-white font-bold py-4 px-6 rounded-lg flex-1">
+                <span class="text-4xl">✋</span>
+                <span class="block mt-1">Paper</span>
+            </button>
+            <button data-choice="Scissors" class="choice-btn bg-gray-700 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-lg flex-1">
+                <span class="text-4xl">✌️</span>
+                <span class="block mt-1">Scissors</span>
+            </button>
+        </div>
+        
+        <!-- Reset Button -->
+        <div class="mt-8">
+            <button id="reset-btn" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                Reset Game
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM Elements
+        const playerScoreEl = document.getElementById('player-score');
+        const computerScoreEl = document.getElementById('computer-score');
+        const playerChoiceEl = document.getElementById('player-choice');
+        const computerChoiceEl = document.getElementById('computer-choice');
+        const resultMessageEl = document.getElementById('result-message');
+        const choiceButtons = document.querySelectorAll('.choice-btn');
+        const resetButton = document.getElementById('reset-btn');
+
+        // Game state
+        let playerScore = 0;
+        let computerScore = 0;
+        const choices = ['Rock', 'Paper', 'Scissors'];
+        const choiceEmojis = {
+            Rock: '✊',
+            Paper: '✋',
+            Scissors: '✌️'
+        };
+
+        // --- Event Listeners ---
+
+        // Add click event listener to each choice button
+        choiceButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const playerChoice = button.dataset.choice;
+                playRound(playerChoice);
+            });
+        });
+
+        // Add click event listener to the reset button
+        resetButton.addEventListener('click', resetGame);
+
+
+        // --- Game Logic Functions ---
+
+        /**
+         * Plays a single round of Rock, Paper, Scissors.
+         * @param {string} playerChoice - The player's selection ('Rock', 'Paper', or 'Scissors').
+         */
+        function playRound(playerChoice) {
+            const computerChoice = getComputerChoice();
+            const winner = getWinner(playerChoice, computerChoice);
+
+            updateUI(playerChoice, computerChoice, winner);
+        }
+
+        /**
+         * Generates a random choice for the computer.
+         * @returns {string} The computer's choice.
+         */
+        function getComputerChoice() {
+            const randomIndex = Math.floor(Math.random() * choices.length);
+            return choices[randomIndex];
+        }
+
+        /**
+         * Determines the winner of the round.
+         * @param {string} player - The player's choice.
+         * @param {string} computer - The computer's choice.
+         * @returns {string} 'player', 'computer', or 'tie'.
+         */
+        function getWinner(player, computer) {
+            if (player === computer) {
+                return 'tie';
+            }
+            if (
+                (player === 'Rock' && computer === 'Scissors') ||
+                (player === 'Paper' && computer === 'Rock') ||
+                (player === 'Scissors' && computer === 'Paper')
+            ) {
+                return 'player';
+            }
+            return 'computer';
+        }
+
+        /**
+         * Updates the entire UI after a round is played.
+         * @param {string} playerChoice - The player's choice.
+         * @param {string} computerChoice - The computer's choice.
+         * @param {string} winner - The winner of the round.
+         */
+        function updateUI(playerChoice, computerChoice, winner) {
+            // Update choices display
+            playerChoiceEl.textContent = choiceEmojis[playerChoice];
+            computerChoiceEl.textContent = choiceEmojis[computerChoice];
+
+            // Update score and display result message
+            if (winner === 'player') {
+                playerScore++;
+                playerScoreEl.textContent = playerScore;
+                resultMessageEl.textContent = `${playerChoice} beats ${computerChoice}. You win!`;
+                resultMessageEl.className = 'text-2xl font-semibold mb-8 text-green-400';
+            } else if (winner === 'computer') {
+                computerScore++;
+                computerScoreEl.textContent = computerScore;
+                resultMessageEl.textContent = `${computerChoice} beats ${playerChoice}. You lose!`;
+                resultMessageEl.className = 'text-2xl font-semibold mb-8 text-red-400';
+            } else {
+                resultMessageEl.textContent = "It's a tie!";
+                resultMessageEl.className = 'text-2xl font-semibold mb-8 text-yellow-400';
+            }
+        }
+
+        /**
+         * Resets the game state and UI to the initial values.
+         */
+        function resetGame() {
+            playerScore = 0;
+            computerScore = 0;
+            playerScoreEl.textContent = '0';
+            computerScoreEl.textContent = '0';
+            playerChoiceEl.textContent = '❔';
+            computerChoiceEl.textContent = '❔';
+            resultMessageEl.textContent = 'Make your move!';
+            resultMessageEl.className = 'text-2xl font-semibold mb-8 text-yellow-400';
+        }
+    </script>
+</body>
+</html>
